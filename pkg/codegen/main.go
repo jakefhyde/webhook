@@ -14,6 +14,7 @@ import (
 	v3 "github.com/rancher/rancher/pkg/apis/management.cattle.io/v3"
 	v1 "github.com/rancher/rancher/pkg/apis/provisioning.cattle.io/v1"
 	rkev1 "github.com/rancher/rancher/pkg/apis/rke.cattle.io/v1"
+	planv1alpha1 "github.com/rancher/rancher/pkg/plan/api/plan.cattle.io/v1alpha1"
 	controllergen "github.com/rancher/wrangler/v3/pkg/controller-gen"
 	"github.com/rancher/wrangler/v3/pkg/controller-gen/args"
 	"golang.org/x/tools/imports"
@@ -69,6 +70,11 @@ func main() {
 			"rke.cattle.io": {
 				Types: []interface{}{
 					&rkev1.ETCDSnapshot{},
+				},
+			},
+			"plan.cattle.io": {
+				Types: []interface{}{
+					&planv1alpha1.Beacon{},
 				},
 			},
 		},

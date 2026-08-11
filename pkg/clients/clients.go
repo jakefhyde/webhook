@@ -6,6 +6,8 @@ import (
 	"github.com/rancher/webhook/pkg/auth"
 	"github.com/rancher/webhook/pkg/generated/controllers/management.cattle.io"
 	managementv3 "github.com/rancher/webhook/pkg/generated/controllers/management.cattle.io/v3"
+	"github.com/rancher/webhook/pkg/generated/controllers/plan.cattle.io"
+	planv1alpha1 "github.com/rancher/webhook/pkg/generated/controllers/plan.cattle.io/v1alpha1"
 	"github.com/rancher/webhook/pkg/generated/controllers/provisioning.cattle.io"
 	provv1 "github.com/rancher/webhook/pkg/generated/controllers/provisioning.cattle.io/v1"
 	"github.com/rancher/webhook/pkg/generated/controllers/rke.cattle.io"
@@ -24,6 +26,7 @@ type Clients struct {
 	Management             managementv3.Interface
 	Provisioning           provv1.Interface
 	RKE                    rkev1.Interface
+	Plan                   planv1alpha1.Interface
 	RoleTemplateResolver   *auth.RoleTemplateResolver
 	GlobalRoleResolver     *auth.GlobalRoleResolver
 	DefaultResolver        validation.AuthorizationRuleResolver
@@ -54,6 +57,11 @@ func New(ctx context.Context, rest *rest.Config, mcmEnabled bool) (*Clients, err
 		return nil, err
 	}
 
+	plan, err := plan.NewFactoryFromConfigWithOptions(rest, clients.FactoryOptions)
+	if err != nil {
+		return nil, err
+	}
+
 	// Pre-register informers used by validators before Start so they are included
 	// in the initial cache sync barrier. Without this, lazily-registered informers
 	// may not be synced when the HTTP server begins serving admission requests.
@@ -75,6 +83,7 @@ func New(ctx context.Context, rest *rest.Config, mcmEnabled bool) (*Clients, err
 		Management:             mgmt.Management().V3(),
 		Provisioning:           prov.Provisioning().V1(),
 		RKE:                    rke.Rke().V1(),
+		Plan:                   plan.Plan().V1alpha1(),
 		MultiClusterManagement: mcmEnabled,
 		DefaultResolver:        validation.NewDefaultRuleResolver(rbacRestGetter, rbacRestGetter, rbacRestGetter, rbacRestGetter),
 	}
