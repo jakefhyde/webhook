@@ -12,6 +12,7 @@ import (
 	authnv1 "k8s.io/api/authentication/v1"
 	authzv1 "k8s.io/api/authorization/v1"
 	v1 "k8s.io/api/rbac/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	authorizationv1 "k8s.io/client-go/kubernetes/typed/authorization/v1"
 	"k8s.io/kubernetes/pkg/registry/rbac/validation"
@@ -173,4 +174,16 @@ func OldAndNewFromRequest[T any](request *admissionv1.AdmissionRequest) (*T, *T,
 	}
 
 	return &oldObject, &object, nil
+}
+
+// FromRequest gets an object from the webhook request.
+func FromRequest[T any](obj runtime.RawExtension) (*T, error) {
+	var result T
+
+	err := json.Unmarshal(obj.Raw, &result)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal object: %w", err)
+	}
+
+	return &result, nil
 }

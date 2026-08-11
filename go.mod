@@ -2,6 +2,8 @@ module github.com/rancher/webhook
 
 go 1.26.5
 
+replace github.com/rancher/rancher/pkg/plan => /home/jfh/Documents/work/rancher/rancher/pkg/plan
+
 replace (
 	k8s.io/apiextensions-apiserver => k8s.io/apiextensions-apiserver v0.36.3
 	k8s.io/cli-runtime => k8s.io/cli-runtime v0.36.3

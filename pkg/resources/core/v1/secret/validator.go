@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/rancher/webhook/pkg/admission"
+	"github.com/rancher/webhook/pkg/generated/controllers/plan.cattle.io/v1alpha1"
 	objectsv1 "github.com/rancher/webhook/pkg/generated/objects/core/v1"
 	v1 "github.com/rancher/wrangler/v3/pkg/generated/controllers/rbac/v1"
 	"github.com/sirupsen/logrus"
@@ -31,7 +32,7 @@ type Validator struct {
 
 // NewValidator creates a new secret validator which ensures secrets which own rbac objects aren't deleted with options
 // to orphan those RBAC resources.
-func NewValidator(roleCache v1.RoleCache, roleBindingCache v1.RoleBindingCache) *Validator {
+func NewValidator(roleCache v1.RoleCache, roleBindingCache v1.RoleBindingCache, beacon v1alpha1.BeaconController) *Validator {
 	roleCache.AddIndexer(roleOwnerIndex, func(obj *rbacv1.Role) ([]string, error) {
 		return secretOwnerIndexer(obj.ObjectMeta), nil
 	})
@@ -43,7 +44,9 @@ func NewValidator(roleCache v1.RoleCache, roleBindingCache v1.RoleBindingCache) 
 			roleCache:        roleCache,
 			roleBindingCache: roleBindingCache,
 		},
-		planAdmitter: planAdmitter{},
+		planAdmitter: planAdmitter{
+			beaconClient: beacon,
+		},
 	}
 }
 
